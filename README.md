@@ -1,24 +1,5 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-## Folder Structure
-
-project-root/
-│
-├─ public/                 # Public assets like images, favicon, etc.
-│
-├─ src/
-│   ├─ components/         # React components
-│   ├─ pages/              # Page-level components
-│   ├─ styles/             # CSS / Tailwind files
-│   ├─ hooks/              # Custom hooks (if any)
-│   ├─ utils/              # Helper functions
-│   ├─ context/            # Context API or state management
-│   └─ App.js              # Main app component
-│
-├─ package.json            # Project dependencies and scripts
-├─ tailwind.config.js      # Tailwind configuration
-├─ postcss.config.js       # PostCSS config
-└─ README.md               # Project documentation
 
 
 ## Getting Started
