@@ -1,14 +1,15 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { ArrowUp, Users } from "lucide-react";
+import { ArrowUp, Users, MessageCircle, X } from "lucide-react";
 import Image from "next/image";
 
-export default function Home() {
+export default function ChatbotWidget() {
   const [userInput, setUserInput] = useState("");
   const [messages, setMessages] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_API_KEY;
   const MODEL_NAME = "gemini-2.5-flash";
@@ -50,107 +51,120 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-2">
-      <div className="flex flex-col justify-between w-full h-[80vh] max-w-xl rounded-xl bg-pink-50 font-sans shadow-lg">
-        {/* Chat Bot header */}
-        <div className="flex justify-between items-center p-2 rounded-t-xl bg-gradient-to-r from-emerald-600 to-green-600">
-          <div className="flex items-center">
-            <Image
-              src="https://www.sual.ai/images/2.svg"
-              alt="Chat Bot"
-              width={60}
-              height={60}
-              className="sm:w-[80px] sm:h-[80px] md:w-[100px] md:h-[100px]"
-            />
-            <div className="ml-2">
-              <div className="font-bold text-black text-sm sm:text-base md:text-lg">
-                Ai Chat Assistant
+    <div className="fixed bottom-4 right-4 z-50">
+      {!isOpen && (
+        <button
+          onClick={() => setIsOpen(true)}
+          className="bg-green-600 text-white p-4 rounded-full shadow-lg hover:bg-green-700 transition"
+        >
+          <MessageCircle className="h-6 w-6" />
+        </button>
+      )}
+      {isOpen && (
+        <div className="w-[90vw] sm:w-[400px] h-[80vh] sm:h-[600px] bg-pink-50 font-sans shadow-2xl rounded-xl flex flex-col overflow-hidden">
+          <div className="flex justify-between items-center p-2 rounded-t-xl bg-gradient-to-r from-emerald-600 to-green-600">
+            <div className="flex items-center">
+              <Image
+                src="https://www.sual.ai/images/2.svg"
+                alt="Chat Bot"
+                width={60}
+                height={60}
+                className="sm:w-[80px] sm:h-[80px] md:w-[100px] md:h-[100px]"
+              />
+              <div className="ml-2">
+                <div className="font-semi-bold text-black text-xs sm:text-base md:text-lg">
+                  Ai Chat Assistant
+                </div>
+                <div className="text-xs text-gray-600">Ask me anything</div>
               </div>
-              <div className="text-xs text-gray-600">Ask me anything</div>
             </div>
-          </div>
-          <div className="flex items-center justify-center text-black text-xs sm:text-sm bg-gradient-to-br from-emerald-50 to-green-50 h-8 sm:h-10 w-20 sm:w-24 rounded">
-            Dashboard
-          </div>
-        </div>
-
-        {/* Chat bot body */}
-        <div className="flex-1 overflow-y-auto bg-gradient-to-br from-emerald-50 to-green-50 p-2 sm:p-4">
-          {messages.map((msg, index) => {
-            const isUser = msg.role === "user";
-            return (
-              <div
-                key={index}
-                className={`flex p-2 m-2 text-sm rounded-lg max-w-[80%] ${
-                  isUser
-                    ? "self-end ml-auto flex-row-reverse"
-                    : "self-start mr-auto flex-row"
-                }`}
-                style={{ width: "fit-content" }}
+            <div className="flex items-center space-x-2">
+              <div className="flex items-center justify-center text-black text-xs sm:text-sm bg-gradient-to-br from-emerald-50 to-green-50 h-8 sm:h-10 w-20 sm:w-24 rounded">
+                Dashboard
+              </div>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="text-white hover:text-gray-200"
               >
-                {/* Avatar */}
-                <div
-                  className={`flex items-center justify-center h-8 w-8 rounded-full text-white font-bold ${
-                    isUser ? "bg-green-300 ml-2" : "bg-green-300 mr-2"
-                  }`}
-                >
-                  {isUser ? "Y" : <Users className="h-5 w-5" />}
-                </div>
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+          </div>
 
-                {/* Message */}
+          <div className="flex-1 overflow-y-auto bg-gradient-to-br from-emerald-50 to-green-50 p-2 sm:p-4">
+            {messages.map((msg, index) => {
+              const isUser = msg.role === "user";
+              return (
                 <div
-                  className={`p-2 rounded-lg flex ${
-                    isUser ? " text-black" : "bg-white text-black"
+                  key={index}
+                  className={`flex p-2 m-2 text-sm rounded-lg max-w-[80%] ${
+                    isUser
+                      ? "self-end ml-auto flex-row-reverse"
+                      : "self-start mr-auto flex-row"
                   }`}
+                  style={{ width: "fit-content" }}
                 >
-                  <div ref={messagesEndRef}>{msg.text}</div>
+                  <div
+                    className={`flex items-center justify-center h-8 w-8 rounded-full text-white font-bold ${
+                      isUser ? "bg-green-300 ml-2" : "bg-green-300 mr-2"
+                    }`}
+                  >
+                    {isUser ? "Y" : <Users className="h-5 w-5" />}
+                  </div>
+
+                  <div
+                    className={`p-2 rounded-lg flex ${
+                      isUser ? " text-black" : "bg-white text-black"
+                    }`}
+                  >
+                    <div ref={messagesEndRef}>{msg.text}</div>
+                  </div>
                 </div>
+              );
+            })}
+
+            {loading && (
+              <div className="p-2 m-2 rounded-lg inline-flex items-center space-x-1 max-w-[80%] bg-gray-200 text-gray-700">
+                <span className="h-2 w-2 bg-gray-600 rounded-full animate-pulse"></span>
+                <span
+                  className="h-2 w-2 bg-gray-600 rounded-full animate-pulse"
+                  style={{ animationDelay: "200ms" }}
+                ></span>
+                <span
+                  className="h-2 w-2 bg-gray-600 rounded-full animate-pulse"
+                  style={{ animationDelay: "400ms" }}
+                ></span>
               </div>
-            );
-          })}
+            )}
 
-          {loading && (
-            <div className="p-2 m-2 rounded-lg inline-flex items-center space-x-1 max-w-[80%] bg-gray-200 text-gray-700">
-              <span className="h-2 w-2 bg-gray-600 rounded-full animate-pulse"></span>
-              <span
-                className="h-2 w-2 bg-gray-600 rounded-full animate-pulse"
-                style={{ animationDelay: "200ms" }}
-              ></span>
-              <span
-                className="h-2 w-2 bg-gray-600 rounded-full animate-pulse"
-                style={{ animationDelay: "400ms" }}
-              ></span>
+            {error && (
+              <div className="p-4 m-2 rounded-lg max-w-[80%] bg-red-500 text-white">
+                {error}
+              </div>
+            )}
+          </div>
+
+          <div className="p-4 border-t rounded-b-xl bg-gradient-to-r from-emerald-600 to-green-600">
+            <div className="relative w-full">
+              <input
+                className="rounded-full p-3 text-sm w-full bg-gray-100 text-black pr-10"
+                type="text"
+                placeholder="Message HR Assistant"
+                value={userInput}
+                onChange={(e) => setUserInput(e.target.value)}
+                onKeyDown={handleKeyPress}
+              />
+              <button
+                onClick={handleSendMessage}
+                type="button"
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black text-white p-2 rounded-full hover:bg-gray-800 transition"
+              >
+                <ArrowUp className="h-4 w-4" />
+              </button>
             </div>
-          )}
-
-          {error && (
-            <div className="p-4 m-2 rounded-lg max-w-[80%] bg-red-500 text-white">
-              {error}
-            </div>
-          )}
-        </div>
-
-        {/* Chat bot footer */}
-        <div className="p-4 border-t rounded-b-xl bg-gradient-to-r from-emerald-600 to-green-600">
-          <div className="relative w-full">
-            <input
-              className="rounded-full p-3 text-sm w-full bg-gray-100 text-black pr-10"
-              type="text"
-              placeholder="Message HR Assistant"
-              value={userInput}
-              onChange={(e) => setUserInput(e.target.value)}
-              onKeyDown={handleKeyPress}
-            />
-            <button
-              onClick={handleSendMessage}
-              type="button"
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black text-white p-2 rounded-full hover:bg-gray-800 transition"
-            >
-              <ArrowUp className="h-4 w-4" />
-            </button>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
