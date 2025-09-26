@@ -50,6 +50,25 @@ export default function ChatbotWidget() {
     }
   };
 
+  const formatMessage = (text) => {
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    return text.split(urlRegex).map((part, index) =>
+      urlRegex.test(part) ? (
+        <a
+          key={index}
+          href={part}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-600 underline hover:text-blue-800"
+        >
+          {part}
+        </a>
+      ) : (
+        part
+      )
+    );
+  };
+
   return (
     <div className="fixed bottom-4 right-4 z-50">
       {!isOpen && (
@@ -105,19 +124,29 @@ export default function ChatbotWidget() {
                   style={{ width: "fit-content" }}
                 >
                   <div
-                    className={`flex items-center justify-center h-8 w-8 rounded-full text-white font-bold ${
-                      isUser ? "bg-green-300 ml-2" : "bg-green-300 mr-2"
-                    }`}
+                    className={`flex-shrink-0 flex items-center justify-center rounded-full text-white font-bold
+                      ${isUser ? "bg-green-300 ml-2" : "bg-green-300 mr-2"}
+                      h-6 w-6 sm:h-8 sm:w-8 md:h-10 md:w-10
+                    `}
                   >
-                    {isUser ? "Y" : <Users className="h-5 w-5" />}
+                    {isUser ? (
+                      <span className="text-xs sm:text-sm md:text-base">Y</span>
+                    ) : (
+                      <Users className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6" />
+                    )}
                   </div>
 
                   <div
-                    className={`p-2 rounded-lg flex ${
-                      isUser ? " text-black" : "bg-white text-black"
+                    className={`p-2 rounded-lg ${
+                      isUser ? "bg-green-100 text-black" : "bg-white text-black"
                     }`}
                   >
-                    <div ref={messagesEndRef}>{msg.text}</div>
+                    <div
+                      ref={messagesEndRef}
+                      className="whitespace-pre-wrap break-words"
+                    >
+                      {formatMessage(msg.text)}
+                    </div>
                   </div>
                 </div>
               );
